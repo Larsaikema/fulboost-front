@@ -5,6 +5,9 @@
 [functions]
   directory = "netlify/functions"
 
+[dev]
+  targetPort = 8081
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
