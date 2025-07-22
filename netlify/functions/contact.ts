@@ -1,12 +1,17 @@
 import { Handler } from '@netlify/functions';
 import nodemailer from 'nodemailer';
 
-// Email transporter setup
+// Email transporter setup for TransIP
 const transporter = nodemailer.createTransporter({
-  service: 'gmail',
+  host: 'smtp.transip.email',
+  port: 587,
+  secure: false, // true for 465, false for other ports
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false
   }
 });
 
