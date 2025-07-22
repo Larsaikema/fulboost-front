@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from 'react';
 import AnimatedSection from '../components/AnimatedSection';
 import { Calculator, Zap, CheckCircle, Rocket } from 'lucide-react';
 import { useForm } from 'react-hook-form';

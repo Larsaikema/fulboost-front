@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from 'react';
 import AnimatedSection from '../components/AnimatedSection';
 import { Mail, Phone, MapPin, Clock, MessageSquare, Zap } from 'lucide-react';
 import { useForm } from 'react-hook-form';
