@@ -1,65 +1,71 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 
 export default function CustomCursor() {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    const updatePosition = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-    };
-
-    const handleMouseOver = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest("a, button")) {
-        setIsHovering(true);
-      }
+    // Check if device is mobile/touch
+    const checkMobile = () => {
+      const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      setIsMobile(isTouch);
     };
     
-    const handleMouseOut = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest("a, button")) {
-        setIsHovering(false);
-      }
-    };
-
-    window.addEventListener("mousemove", updatePosition);
-    document.body.addEventListener("mouseover", handleMouseOver);
-    document.body.addEventListener("mouseout", handleMouseOut);
-
-    return () => {
-      window.removeEventListener("mousemove", updatePosition);
-      document.body.removeEventListener("mouseover", handleMouseOver);
-      document.body.removeEventListener("mouseout", handleMouseOut);
-    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const cursorVariants = {
-    default: {
-      x: position.x - 8,
-      y: position.y - 8,
-      height: 16,
-      width: 16,
-      backgroundColor: "#DC2626",
-      mixBlendMode: "normal",
-    },
-    hover: {
-      x: position.x - 24,
-      y: position.y - 24,
-      height: 48,
-      width: 48,
-      backgroundColor: "#DC2626",
-      mixBlendMode: "difference",
-    },
-  };
+  useEffect(() => {
+    if (isMobile) return; // Don't add mouse listeners on mobile
+
+    const updateMousePosition = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleMouseEnter = () => setIsHovering(true);
+    const handleMouseLeave = () => setIsHovering(false);
+
+    window.addEventListener('mousemove', updateMousePosition);
+    
+    // Add hover listeners to all interactive elements
+    const interactiveElements = document.querySelectorAll('a, button, [role="button"]');
+    interactiveElements.forEach(el => {
+      el.addEventListener('mouseenter', handleMouseEnter);
+      el.addEventListener('mouseleave', handleMouseLeave);
+    });
+
+    return () => {
+      window.removeEventListener('mousemove', updateMousePosition);
+      interactiveElements.forEach(el => {
+        el.removeEventListener('mouseenter', handleMouseEnter);
+        el.removeEventListener('mouseleave', handleMouseLeave);
+      });
+    };
+  }, [isMobile]);
+
+  // Don't render cursor on mobile
+  if (isMobile) return null;
 
   return (
     <motion.div
-      className="fixed top-0 left-0 rounded-full pointer-events-none z-[9999]"
-      variants={cursorVariants}
-      animate={isHovering ? "hover" : "default"}
-      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      className="fixed top-0 left-0 w-4 h-4 bg-fulboost-red rounded-full pointer-events-none z-50 mix-blend-difference"
+      animate={{
+        x: mousePosition.x - 8,
+        y: mousePosition.y - 8,
+        scale: isHovering ? 2 : 1,
+      }}
+      transition={{
+        type: "spring",
+        stiffness: 500,
+        damping: 28,
+        mass: 0.5,
+      }}
     />
   );
 } 
