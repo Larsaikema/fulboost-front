@@ -31,6 +31,34 @@ export const handler: Handler = async (event) => {
     // Log the data
     console.log('Contact form submitted successfully:', { name, email, company, message });
 
+    // Try to send email via webhook (you can use services like Zapier, Make.com, or webhook.site)
+    try {
+      const webhookUrl = process.env.WEBHOOK_URL || 'https://webhook.site/your-unique-url';
+      
+      const emailData = {
+        to: 'hello@fulboost.nl',
+        from: email,
+        subject: `Nieuw contactformulier bericht van ${name}`,
+        name: name,
+        email: email,
+        company: company,
+        message: message,
+        timestamp: new Date().toISOString()
+      };
+
+      const webhookResponse = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData),
+      });
+
+      console.log('Webhook response status:', webhookResponse.status);
+    } catch (webhookError) {
+      console.log('Webhook failed, but continuing:', webhookError);
+    }
+
     return {
       statusCode: 200,
       headers: {
@@ -40,7 +68,7 @@ export const handler: Handler = async (event) => {
       },
       body: JSON.stringify({ 
         success: true, 
-        message: 'Bericht succesvol ontvangen (debug mode)' 
+        message: 'Bericht succesvol ontvangen! We nemen binnen 24 uur contact met je op.' 
       })
     };
 
