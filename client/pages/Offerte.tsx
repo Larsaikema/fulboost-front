@@ -19,6 +19,8 @@ const quoteSchema = z.object({
 type QuoteFormData = z.infer<typeof quoteSchema>;
 
 const Offerte = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const {
     register,
     handleSubmit,
@@ -28,10 +30,31 @@ const Offerte = () => {
     resolver: zodResolver(quoteSchema)
   });
 
-  const onSubmit = (data: QuoteFormData) => {
-    console.log('Quote request submitted:', data);
-    toast.success('Offerte aanvraag verzonden! We sturen je binnen 24 uur een persoonlijke offerte.');
-    reset();
+  const onSubmit = async (data: QuoteFormData) => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/.netlify/functions/quote', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success('Offerte aanvraag verzonden! We sturen je binnen 24 uur een persoonlijke offerte.');
+        reset();
+      } else {
+        toast.error(result.error || 'Er is een fout opgetreden. Probeer het later opnieuw.');
+      }
+    } catch (error) {
+      console.error('Quote form error:', error);
+      toast.error('Er is een fout opgetreden. Probeer het later opnieuw.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const orderRanges = [
@@ -226,9 +249,10 @@ const Offerte = () => {
             <div className="text-center">
               <button
                 type="submit"
-                className="px-8 py-4 bg-gradient-to-r from-fulboost-red-dark to-fulboost-red text-white font-bold text-lg rounded-full hover:from-fulboost-red-darker hover:to-fulboost-red-dark transition-all duration-300 shadow-lg"
+                disabled={isSubmitting}
+                className="px-8 py-4 bg-gradient-to-r from-fulboost-red-dark to-fulboost-red text-white font-bold text-lg rounded-full hover:from-fulboost-red-darker hover:to-fulboost-red-dark transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Vraag offerte aan
+                {isSubmitting ? 'Versturen...' : 'Vraag offerte aan'}
               </button>
             </div>
           </form>

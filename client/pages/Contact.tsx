@@ -17,6 +17,8 @@ const contactSchema = z.object({
 type ContactFormData = z.infer<typeof contactSchema>;
 
 const Contact = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const {
     register,
     handleSubmit,
@@ -26,10 +28,31 @@ const Contact = () => {
     resolver: zodResolver(contactSchema)
   });
 
-  const onSubmit = (data: ContactFormData) => {
-    console.log('Contact form submitted:', data);
-    toast.success('Bericht verzonden! We nemen binnen 24 uur contact met je op.');
-    reset();
+  const onSubmit = async (data: ContactFormData) => {
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/.netlify/functions/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success('Bericht verzonden! We nemen binnen 24 uur contact met je op.');
+        reset();
+      } else {
+        toast.error(result.error || 'Er is een fout opgetreden. Probeer het later opnieuw.');
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      toast.error('Er is een fout opgetreden. Probeer het later opnieuw.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const contactInfo = [
@@ -188,9 +211,10 @@ const Contact = () => {
             <div className="text-center">
               <button
                 type="submit"
-                className="px-8 py-4 bg-gradient-to-r from-fulboost-red-dark to-fulboost-red text-white font-bold text-lg rounded-full hover:from-fulboost-red-darker hover:to-fulboost-red-dark transition-all duration-300 shadow-lg"
+                disabled={isSubmitting}
+                className="px-8 py-4 bg-gradient-to-r from-fulboost-red-dark to-fulboost-red text-white font-bold text-lg rounded-full hover:from-fulboost-red-darker hover:to-fulboost-red-dark transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Verstuur bericht
+                {isSubmitting ? 'Versturen...' : 'Verstuur bericht'}
               </button>
             </div>
           </form>
