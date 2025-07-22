@@ -35,8 +35,9 @@ const Header = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="text-2xl font-black text-fulboost-red">FULBOOST</div>
+          <Link to="/" className="flex items-center">
+            <span className="text-2xl font-black tracking-tight text-white">FULBOOST</span>
+            <span className="text-2xl font-black text-fulboost-red">.</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -78,7 +79,10 @@ const Header = () => {
                 <div className="flex flex-col h-full">
                   {/* Header */}
                   <div className="flex items-center justify-between p-4 border-b border-gray-800">
-                    <div className="text-xl font-black text-fulboost-red">FULBOOST</div>
+                    <div className="text-xl font-black">
+                      <span className="text-white">FULBOOST</span>
+                      <span className="text-fulboost-red">.</span>
+                    </div>
                     <button 
                       onClick={closeMenu}
                       className="p-2 text-gray-300 hover:text-white transition-colors"
