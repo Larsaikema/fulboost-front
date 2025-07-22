@@ -2,7 +2,6 @@ import { Handler } from '@netlify/functions';
 
 export const handler: Handler = async (event) => {
   console.log('Contact function called with method:', event.httpMethod);
-  console.log('Event body:', event.body);
 
   // Only allow POST requests
   if (event.httpMethod !== 'POST') {
@@ -28,36 +27,17 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    // Log the data
-    console.log('Contact form submitted successfully:', { name, email, company, message });
+    // Log the data (this will be visible in Netlify Function logs)
+    console.log('=== NEW CONTACT FORM SUBMISSION ===');
+    console.log('Name:', name);
+    console.log('Email:', email);
+    console.log('Company:', company);
+    console.log('Message:', message);
+    console.log('Timestamp:', new Date().toISOString());
+    console.log('=====================================');
 
-    // Try to send email via webhook (you can use services like Zapier, Make.com, or webhook.site)
-    try {
-      const webhookUrl = process.env.WEBHOOK_URL || 'https://webhook.site/your-unique-url';
-      
-      const emailData = {
-        to: 'hello@fulboost.nl',
-        from: email,
-        subject: `Nieuw contactformulier bericht van ${name}`,
-        name: name,
-        email: email,
-        company: company,
-        message: message,
-        timestamp: new Date().toISOString()
-      };
-
-      const webhookResponse = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(emailData),
-      });
-
-      console.log('Webhook response status:', webhookResponse.status);
-    } catch (webhookError) {
-      console.log('Webhook failed, but continuing:', webhookError);
-    }
+    // You can also store this in a database or send to a webhook here
+    // For now, we'll just log it and return success
 
     return {
       statusCode: 200,
